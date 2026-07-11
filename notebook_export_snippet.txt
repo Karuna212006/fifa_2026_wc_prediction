@@ -1,0 +1,14 @@
+# --- Paste this at the end of Section 11 in your notebook -----------------
+# Exports the two files the live bracket-projection backend needs to score
+# ANY future matchup (not just the 72 pre-computed group games).
+
+# 1. Every team's adjusted rating (from Section 8)
+feat[["team", "elo_adjusted"]].to_csv("team_ratings.csv", index=False)
+
+# 2. The fitted Poisson goal-model coefficients (from Section 7.1),
+#    so the backend's goal predictions match your notebook exactly.
+import json
+with open("poisson_coeffs.json", "w") as f:
+    json.dump({"b0": b0, "b1": b1}, f)
+
+print("Saved -> team_ratings.csv, poisson_coeffs.json")
