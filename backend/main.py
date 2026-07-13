@@ -36,6 +36,8 @@ import time
 import math
 from datetime import datetime, timedelta
 from typing import Optional
+from dotenv import load_dotenv
+load_dotenv()
 
 import httpx
 import pandas as pd
@@ -93,7 +95,11 @@ async def get_token() -> str:
                 json={"name": "WC Dashboard Bot", "email": WC26_EMAIL, "password": WC26_PASSWORD},
             )
         if r.status_code != 200:
-            raise HTTPException(502, f"worldcup26.ir auth failed: {r.text}")
+            error_msg = r.text
+            if "User already exists" in error_msg:
+                print(f"\n[error] The email '{WC26_EMAIL}' is already registered on the public worldcup26.ir API with a different password.")
+                print(f"[error] Please use a different, unique email address (e.g., your_name_wc_predict@example.com) by setting the WC26_EMAIL environment variable and restarting the backend server.\n")
+            raise HTTPException(502, f"worldcup26.ir auth failed: {error_msg}. Please configure a unique WC26_EMAIL and WC26_PASSWORD.")
 
         token = r.json()["token"]
         _token_cache["token"] = token
