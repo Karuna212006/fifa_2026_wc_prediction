@@ -1,8 +1,8 @@
+import 'flag-icons/css/flag-icons.min.css';
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
-import 'flag-icons/css/flag-icons.min.css'
 import App from './App.jsx'
 
 const queryClient = new QueryClient()

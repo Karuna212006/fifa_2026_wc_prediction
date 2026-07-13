@@ -14,18 +14,18 @@ import MatchdayChat from "./MatchdayChat";
 
 // ─── Country → ISO flag code ───────────────────────────────────────────────
 const COUNTRY_CODES = {
-  "Argentina":"ar","Australia":"au","Belgium":"be","Brazil":"br","Canada":"ca",
-  "Colombia":"co","Croatia":"hr","Denmark":"dk","Ecuador":"ec","Egypt":"eg",
-  "England":"gb-eng","France":"fr","Germany":"de","Ghana":"gh","Italy":"it",
-  "Japan":"jp","Mexico":"mx","Morocco":"ma","Netherlands":"nl","Norway":"no",
-  "Paraguay":"py","Portugal":"pt","Saudi Arabia":"sa","Senegal":"sn",
-  "South Korea":"kr","Spain":"es","Sweden":"se","Switzerland":"ch","Tunisia":"tn",
-  "USA":"us","United States":"us","Uruguay":"uy","Wales":"gb-wls","Algeria":"dz",
-  "Bosnia":"ba","Bosnia and Herzegovina":"ba","DR Congo":"cd","Turkey":"tr",
-  "Türkiye":"tr","Panama":"pa","Cape Verde":"cv","Ivory Coast":"ci",
-  "Austria":"at","Democratic Republic of the Congo":"cd","Costa Rica":"cr",
-  "Honduras":"hn","Peru":"pe","Chile":"cl","Serbia":"rs","Ukraine":"ua",
-  "Poland":"pl","Cameroon":"cm","Nigeria":"ng",
+  "Argentina": "ar", "Australia": "au", "Belgium": "be", "Brazil": "br", "Canada": "ca",
+  "Colombia": "co", "Croatia": "hr", "Denmark": "dk", "Ecuador": "ec", "Egypt": "eg",
+  "England": "gb-eng", "France": "fr", "Germany": "de", "Ghana": "gh", "Italy": "it",
+  "Japan": "jp", "Mexico": "mx", "Morocco": "ma", "Netherlands": "nl", "Norway": "no",
+  "Paraguay": "py", "Portugal": "pt", "Saudi Arabia": "sa", "Senegal": "sn",
+  "South Korea": "kr", "Spain": "es", "Sweden": "se", "Switzerland": "ch", "Tunisia": "tn",
+  "USA": "us", "United States": "us", "Uruguay": "uy", "Wales": "gb-wls", "Algeria": "dz",
+  "Bosnia": "ba", "Bosnia and Herzegovina": "ba", "DR Congo": "cd", "Turkey": "tr",
+  "Türkiye": "tr", "Panama": "pa", "Cape Verde": "cv", "Ivory Coast": "ci",
+  "Austria": "at", "Democratic Republic of the Congo": "cd", "Costa Rica": "cr",
+  "Honduras": "hn", "Peru": "pe", "Chile": "cl", "Serbia": "rs", "Ukraine": "ua",
+  "Poland": "pl", "Cameroon": "cm", "Nigeria": "ng",
 };
 
 // ─── Props: matches, accuracy, projectionData, projectionLoading, projectionError, loadProjection
@@ -37,12 +37,12 @@ export default function FixturesContent({
   projectionError,
   loadProjection,
 }) {
-  const [filter, setFilter]       = useState("all");
+  const [filter, setFilter] = useState("all");
   const [activeTab, setActiveTab] = useState("fixtures");
 
   const filteredMatches = useMemo(() => {
-    if (filter === "all")      return matches;
-    if (filter === "live")     return matches.filter(m => m.status !== "finished" && m.status !== "notstarted");
+    if (filter === "all") return matches;
+    if (filter === "live") return matches.filter(m => m.status !== "finished" && m.status !== "notstarted");
     if (filter === "finished") return matches.filter(m => m.status === "finished");
     if (filter === "upcoming") return matches.filter(m => m.status === "notstarted");
     return matches;
@@ -93,8 +93,8 @@ export default function FixturesContent({
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: "12px", marginBottom: "24px" }}>
           <StatPill label="Winner Accuracy" value={accuracy.winner_accuracy} suffix="%" icon={<Trophy size={14} color="#FFD700" />} color="#FFD700" />
           <StatPill label="Exact Scoreline" value={accuracy.scoreline_accuracy} suffix="%" icon={<Check size={14} color="#00CC66" />} color="#00CC66" />
-          <StatPill label="Brier Score"     value={accuracy.brier_score}        suffix=""  icon={<Clock size={14} color="#0099FF" />} color="#0099FF" />
-          <StatPill label="Scored Matches"  value={accuracy.finished_with_predictions} suffix="" icon={<Calendar size={14} color="#FF9900" />} color="#FF9900" />
+          <StatPill label="Brier Score" value={accuracy.brier_score} suffix="" icon={<Clock size={14} color="#0099FF" />} color="#0099FF" />
+          <StatPill label="Scored Matches" value={accuracy.finished_with_predictions} suffix="" icon={<Calendar size={14} color="#FF9900" />} color="#FF9900" />
         </div>
 
         {/* Tabs */}
@@ -102,7 +102,7 @@ export default function FixturesContent({
           <div style={{ display: "flex", gap: "0" }}>
             {[
               { id: "fixtures", label: "Fixtures & Predictions" },
-              { id: "bracket",  label: "Knockout Bracket" },
+              { id: "bracket", label: "Knockout Bracket" },
               { id: "projection", label: "Forward Projection", icon: <TrendingUp size={13} /> },
             ].map(tab => (
               <button
@@ -243,9 +243,9 @@ function StatPill({ label, value, suffix, icon, color }) {
 
 // ─── MatchCard ────────────────────────────────────────────────────────────────
 function MatchCard({ m }) {
-  const isLive   = m.status !== "finished" && m.status !== "notstarted";
-  const isDone   = m.status === "finished";
-  const hasSim   = m.is_simulated;
+  const isLive = m.status !== "finished" && m.status !== "notstarted";
+  const isDone = m.status === "finished";
+  const hasSim = m.is_simulated;
   const hasScore = m.home_score !== null && m.home_score !== undefined;
 
   return (
@@ -257,8 +257,8 @@ function MatchCard({ m }) {
       position: "relative", overflow: "hidden",
       transition: "transform 0.25s, box-shadow 0.25s",
     }}
-    onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "var(--shadow-xl)"; }}
-    onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = isLive ? "0 0 20px rgba(255,68,68,0.05)" : "var(--shadow-card)"; }}
+      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = "var(--shadow-xl)"; }}
+      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = isLive ? "0 0 20px rgba(255,68,68,0.05)" : "var(--shadow-card)"; }}
     >
       {isLive && <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: "linear-gradient(90deg, transparent, #FF4444, transparent)" }} />}
 
@@ -396,24 +396,24 @@ function KnockoutBracket({ matches }) {
     return stages;
   }, [matches]);
 
-  const leftR16  = kMatches.r16.slice(0, 4);
+  const leftR16 = kMatches.r16.slice(0, 4);
   const rightR16 = kMatches.r16.slice(4, 8);
-  const leftQF   = kMatches.qf.slice(0, 2);
-  const rightQF  = kMatches.qf.slice(2, 4);
-  const leftSF   = kMatches.sf[0];
-  const rightSF  = kMatches.sf[1];
-  const finalM   = kMatches.final[0];
+  const leftQF = kMatches.qf.slice(0, 2);
+  const rightQF = kMatches.qf.slice(2, 4);
+  const leftSF = kMatches.sf[0];
+  const rightSF = kMatches.sf[1];
+  const finalM = kMatches.final[0];
 
   return (
     <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "14px", padding: "20px", overflowX: "auto", boxShadow: "var(--shadow-card)" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "16px", minWidth: "960px", padding: "16px 8px", userSelect: "none" }}>
         {/* Left R16 */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", justifyContent: "space-around", height: "360px" }}>
-          {[0,1,2,3].map(i => <BracketMatchNode key={i} match={leftR16[i] || (kMatches.r32[i] ? { ...kMatches.r32[i] } : null)} />)}
+          {[0, 1, 2, 3].map(i => <BracketMatchNode key={i} match={leftR16[i] || (kMatches.r32[i] ? { ...kMatches.r32[i] } : null)} />)}
         </div>
         {/* Left QF */}
         <div style={{ display: "flex", flexDirection: "column", gap: "32px", justifyContent: "space-around", height: "360px" }}>
-          {[0,1].map(i => <BracketMatchNode key={i} match={leftQF[i]} />)}
+          {[0, 1].map(i => <BracketMatchNode key={i} match={leftQF[i]} />)}
         </div>
         {/* Left SF */}
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", height: "360px" }}>
@@ -434,11 +434,11 @@ function KnockoutBracket({ matches }) {
         </div>
         {/* Right QF */}
         <div style={{ display: "flex", flexDirection: "column", gap: "32px", justifyContent: "space-around", height: "360px" }}>
-          {[0,1].map(i => <BracketMatchNode key={i} match={rightQF[i]} />)}
+          {[0, 1].map(i => <BracketMatchNode key={i} match={rightQF[i]} />)}
         </div>
         {/* Right R16 */}
         <div style={{ display: "flex", flexDirection: "column", gap: "16px", justifyContent: "space-around", height: "360px" }}>
-          {[0,1,2,3].map(i => <BracketMatchNode key={i} match={rightR16[i] || (kMatches.r32[i+4] ? { ...kMatches.r32[i+4] } : null)} />)}
+          {[0, 1, 2, 3].map(i => <BracketMatchNode key={i} match={rightR16[i] || (kMatches.r32[i + 4] ? { ...kMatches.r32[i + 4] } : null)} />)}
         </div>
       </div>
     </div>
@@ -587,7 +587,7 @@ function MostLikelyFinalCard({ data }) {
 function ProjectionSection({ title, icon, data, color, trackColor }) {
   if (!data || Object.keys(data).length === 0) return null;
   const entries = Object.entries(data).sort((a, b) => b[1] - a[1]);
-  const maxPct  = Math.max(...entries.map(([, v]) => v));
+  const maxPct = Math.max(...entries.map(([, v]) => v));
 
   return (
     <div style={{ background: "var(--bg-card)", border: "1px solid var(--border)", borderRadius: "14px", padding: "16px", boxShadow: "var(--shadow-card)" }}>

@@ -37,7 +37,16 @@ import math
 from datetime import datetime, timedelta
 from typing import Optional
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv('.env')
+
+# ADD THIS DEBUG CODE
+print("MY DEBUG EMAIL IS:", os.getenv('WC26_EMAIL'))
+email = os.getenv('WC26_EMAIL')
+print(f"🔍 DEBUG: WC26_EMAIL = {email}")
+if not email or email == 'you@example.com':
+    print("❌ ERROR: .env file not loaded!")
+else:
+    print("✅ SUCCESS: .env loaded correctly!")
 
 import httpx
 import pandas as pd

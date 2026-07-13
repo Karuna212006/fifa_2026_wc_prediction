@@ -19,6 +19,7 @@
  * @property {string} [venue]
  */
 
+import CountryFlag from './CountryFlag';
 import React from 'react';
 import { Radio, Trophy, Medal, Clock } from 'lucide-react';
 
@@ -26,19 +27,18 @@ import { Radio, Trophy, Medal, Clock } from 'lucide-react';
  * Renders a country flag from flagcdn.com
  * @param {{ code: string|null, size?: number }} props
  */
+/**
+ * Wrapper for CountryFlag component
+ * @param {{ code: string|null, size?: number }} props
+ */
 function Flag({ code, size = 20 }) {
   if (!code) return <div style={{ width: size, height: size * 0.75, background: 'var(--border)', borderRadius: 2 }} />;
 
-  return (
-    <img
-      src={`https://flagcdn.com/w40/${code.toLowerCase()}.png`}
-      alt={code}
-      width={size}
-      height={size * 0.75}
-      style={{ borderRadius: 2, objectFit: 'cover', flexShrink: 0 }}
-      loading="lazy"
-    />
-  );
+  // Map size to className
+  const sizeClass = size <= 14 ? 'sm' : size <= 18 ? 'md' : size <= 24 ? 'lg' : 'xl';
+
+  return <CountryFlag countryCode={code} size={sizeClass} />;
+
 }
 
 /**
@@ -262,7 +262,7 @@ export default function MatchNode({
             <span style={{
               fontSize: '9px', fontWeight: 700,
               color: predictionConfidence >= 75 ? 'var(--success)' :
-                     predictionConfidence >= 50 ? 'var(--warning)' : 'var(--error)',
+                predictionConfidence >= 50 ? 'var(--warning)' : 'var(--error)',
             }}>
               {predictionConfidence}%
             </span>
@@ -276,7 +276,7 @@ export default function MatchNode({
               height: '100%', borderRadius: '2px',
               width: `${predictionConfidence}%`,
               background: predictionConfidence >= 75 ? 'var(--success)' :
-                          predictionConfidence >= 50 ? 'var(--warning)' : 'var(--error)',
+                predictionConfidence >= 50 ? 'var(--warning)' : 'var(--error)',
               transition: 'width 0.6s ease',
             }} />
           </div>

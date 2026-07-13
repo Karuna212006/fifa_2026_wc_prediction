@@ -13,6 +13,7 @@ import FixturesContent from './LiveScoresDashboard';
 import BracketPage from './pages/BracketPage';
 import { useWorldCup2026Data } from './hooks/useWorldCup2026Data';
 
+
 const API_BASE = 'http://localhost:8000';
 const POLL_MS = 10000;
 const CHAT_POLL_MS = 2500;
@@ -28,21 +29,21 @@ const RANDOM_NICKNAMES = ['GoalScorer', 'VAR_Official', 'PitchInvader', 'Striker
 
 export default function FIFAApp() {
   // UI State
-  const [currentPage, setCurrentPage]         = useState('home');
-  const [darkMode, setDarkMode]               = useState(false);
+  const [currentPage, setCurrentPage] = useState('home');
+  const [darkMode, setDarkMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen]           = useState(false);
-  const [showSplash, setShowSplash]           = useState(true);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
 
   // Data State (existing backend data)
-  const [matches, setMatches]   = useState([]);
+  const [matches, setMatches] = useState([]);
   const [accuracy, setAccuracy] = useState({ finished_with_predictions: 0, winner_accuracy: 0, scoreline_accuracy: 0, brier_score: 0, by_group: {} });
-  const [error, setError]       = useState(null);
+  const [error, setError] = useState(null);
 
   // Projection State
-  const [projectionData, setProjectionData]       = useState(null);
+  const [projectionData, setProjectionData] = useState(null);
   const [projectionLoading, setProjectionLoading] = useState(false);
-  const [projectionError, setProjectionError]     = useState(null);
+  const [projectionError, setProjectionError] = useState(null);
 
   // NEW: Tournament bracket data from TanStack Query auto-updating hook
   const {
@@ -56,7 +57,7 @@ export default function FIFAApp() {
   } = useWorldCup2026Data();
 
   // Chat State
-  const [chatMessages, setChatMessages]   = useState([]);
+  const [chatMessages, setChatMessages] = useState([]);
   const [activeChannel, setActiveChannel] = useState('live-discussion');
   const [nickname, setNickname] = useState(() => {
     const saved = localStorage.getItem('wc_chat_nickname');
@@ -153,9 +154,9 @@ export default function FIFAApp() {
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'home':        return <HomePage {...commonProps} />;
+      case 'home': return <HomePage {...commonProps} />;
       case 'predictions': return <PredictionsPage matches={matches} />;
-      case 'fixtures':    return (
+      case 'fixtures': return (
         <FixturesContent
           matches={matches}
           accuracy={accuracy}
@@ -165,7 +166,7 @@ export default function FIFAApp() {
           loadProjection={loadProjection}
         />
       );
-      case 'bracket':     return (
+      case 'bracket': return (
         <BracketPage
           bracketData={bracketData}
           isLoading={bracketLoading}
@@ -176,11 +177,11 @@ export default function FIFAApp() {
           resetData={resetBracketData}
         />
       );
-      case 'results':     return <ResultsPage matches={matches} accuracy={accuracy} />;
-      case 'standings':   return <StandingsPage matches={matches} />;
-      case 'stats':       return <StatsPage />;
-      case 'about':       return <AboutPage />;
-      default:            return <HomePage {...commonProps} />;
+      case 'results': return <ResultsPage matches={matches} accuracy={accuracy} />;
+      case 'standings': return <StandingsPage matches={matches} />;
+      case 'stats': return <StatsPage />;
+      case 'about': return <AboutPage />;
+      default: return <HomePage {...commonProps} />;
     }
   };
 
