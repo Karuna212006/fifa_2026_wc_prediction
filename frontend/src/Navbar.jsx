@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, Menu, X, Moon, Sun, MessageSquare, ChevronDown } from 'lucide-react';
+import { Trophy, Menu, X, Moon, Sun, ChevronDown } from 'lucide-react';
 import LiveIndicator from './components/LiveIndicator.jsx';
 
 const NAV_ITEMS = [
@@ -17,7 +17,7 @@ export default function Navbar({
   currentPage, navigate,
   darkMode, setDarkMode,
   isMobileMenuOpen, setIsMobileMenuOpen,
-  isChatOpen, setIsChatOpen,
+
   error,
   isRefetching, hasLiveMatches,
 }) {
@@ -94,24 +94,7 @@ export default function Navbar({
             {darkMode ? <Sun size={15} /> : <Moon size={15} />}
           </IconBtn>
 
-          {/* Live Chat */}
-          <button
-            id="chat-toggle-btn"
-            onClick={() => setIsChatOpen(!isChatOpen)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '7px 13px',
-              background: isChatOpen ? 'rgba(255,215,0,0.15)' : 'rgba(255,255,255,0.08)',
-              border: `1px solid ${isChatOpen ? 'rgba(255,215,0,0.4)' : 'rgba(255,255,255,0.15)'}`,
-              borderRadius: '8px', cursor: 'pointer',
-              color: isChatOpen ? '#FFD700' : 'rgba(255,255,255,0.8)',
-              fontSize: '12px', fontWeight: 600,
-              transition: 'all 0.2s', fontFamily: 'Inter, sans-serif',
-            }}
-          >
-            <MessageSquare size={14} />
-            <span className="hidden sm:inline">Live Chat</span>
-          </button>
+
 
           {/* Mobile Hamburger */}
           <IconBtn

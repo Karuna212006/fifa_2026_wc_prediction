@@ -128,6 +128,9 @@ export default function MatchNode({
   isThirdPlace, isFinal, minute, venue, id,
   isActual = false,
   awaitingResults = false,
+  penaltiesA = null,
+  penaltiesB = null,
+  note = null,
 }) {
   const isLive = !awaitingResults && status === 'live';
   const isFinished = !awaitingResults && status === 'finished';
@@ -242,6 +245,26 @@ export default function MatchNode({
           isActual={isActual}
         />
       </div>
+
+      {/* Penalty shootout indicator */}
+      {isActual && isFinished && penaltiesA !== null && penaltiesB !== null && (
+        <div style={{
+          padding: '3px 10px 4px',
+          borderTop: '1px solid var(--border)',
+          background: 'rgba(255,215,0,0.04)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+        }}>
+          <span style={{ fontSize: '9px', fontWeight: 600, color: 'var(--text-subtle)', letterSpacing: '0.04em' }}>
+            PENS
+          </span>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#FFD700', fontFamily: 'monospace' }}>
+            {penaltiesA}–{penaltiesB}
+          </span>
+        </div>
+      )}
 
       {/* Prediction confidence bar */}
       {hasPrediction && (

@@ -39,26 +39,20 @@ function buildBracket() {
   /** @type {import('./mockData.js').BracketMatch[]} */
   const matches = [];
 
-  // R16 pairings from predictions CSV (accurate to user stats)
+  // R16 pairings from uploaded knockout screenshots
   const r16Pairings = [
-    { a: "Paraguay",      b: "France",        sA: 0, sB: 4, status: "finished", conf: 96, predWin: "France", predSA: 1, predSB: 3 },
-    { a: "Canada",        b: "Morocco",       sA: 0, sB: 2, status: "finished", conf: 72, predWin: "Morocco", predSA: 0, predSB: 2 },
-    { a: "Brazil",        b: "Norway",        sA: 2, sB: 1, status: "finished", conf: 65, predWin: "Brazil", predSA: 2, predSB: 1 },
-    { a: "Mexico",        b: "England",       sA: 2, sB: 1, status: "finished", conf: 70, predWin: "Mexico", predSA: 2, predSB: 1 },
-    { a: "Portugal",      b: "Spain",         sA: 1, sB: 2, status: "finished", conf: 65, predWin: "Spain", predSA: 1, predSB: 2 },
-    { a: "United States", b: "Belgium",       sA: 2, sB: 1, status: "finished", conf: 51, predWin: "United States", predSA: 2, predSB: 1 },
-    { a: "Argentina",     b: "Egypt",         sA: 3, sB: 0, status: "finished", conf: 90, predWin: "Argentina", predSA: 3, predSB: 0 },
-    { a: "Switzerland",   b: "Colombia",      sA: 1, sB: 1, status: "finished", conf: 39, predWin: "Switzerland", predSA: 2, predSB: 1 }, // Won on penalties
+    { a: "Paraguay",      b: "France",        sA: 0, sB: 1, status: "finished", conf: 96, predWin: "France", predSA: 0, predSB: 1, date: "5 Jul" },
+    { a: "Canada",        b: "Morocco",       sA: 0, sB: 3, status: "finished", conf: 72, predWin: "Morocco", predSA: 0, predSB: 3, date: "4 Jul" },
+    { a: "Brazil",        b: "Norway",        sA: 1, sB: 2, status: "finished", conf: 65, predWin: "Norway", predSA: 1, predSB: 2, date: "6 Jul" },
+    { a: "Mexico",        b: "England",       sA: 2, sB: 3, status: "finished", conf: 70, predWin: "England", predSA: 2, predSB: 3, date: "6 Jul" },
+    { a: "Portugal",      b: "Spain",         sA: 0, sB: 1, status: "finished", conf: 65, predWin: "Spain", predSA: 0, predSB: 1, date: "7 Jul" },
+    { a: "United States", b: "Belgium",       sA: 1, sB: 4, status: "finished", conf: 51, predWin: "Belgium", predSA: 1, predSB: 4, date: "7 Jul" },
+    { a: "Argentina",     b: "Egypt",         sA: 3, sB: 2, status: "finished", conf: 90, predWin: "Argentina", predSA: 3, predSB: 2, date: "7 Jul" },
+    { a: "Switzerland",   b: "Colombia",      sA: 0, sB: 0, status: "finished", conf: 39, predWin: "Switzerland", predSA: 0, predSB: 0, penaltiesA: 4, penaltiesB: 3, note: "Switzerland won 4-3 on penalties", date: "8 Jul" },
   ];
 
-  // Determine R16 winners
-  const r16Winners = r16Pairings.map(m => {
-    if (m.status !== "finished") return null;
-    if (m.sA > m.sB) return m.a;
-    if (m.sB > m.sA) return m.b;
-    // Tie breaker
-    return m.predWin;
-  });
+  // R16 winners
+  const r16Winners = ["France", "Morocco", "Norway", "England", "Spain", "Belgium", "Argentina", "Switzerland"];
 
   // Create R16 match objects
   r16Pairings.forEach((m, i) => {
@@ -78,6 +72,9 @@ function buildBracket() {
       scoreB: m.sB,
       status: m.status,
       winner,
+      penaltiesA: m.penaltiesA ?? null,
+      penaltiesB: m.penaltiesB ?? null,
+      note: m.note ?? null,
       predictionConfidence: m.conf,
       predictedWinner: m.predWin,
       predictedScoreA: m.predSA,
@@ -85,7 +82,7 @@ function buildBracket() {
       nextMatchId: `qf-${nextMatchIdx}`,
       nextMatchSlot: nextSlot,
       venue: venue(i),
-      datetime: `2026-07-0${1 + Math.floor(i / 2)}T${16 + (i % 2) * 3}:00:00Z`,
+      datetime: m.date,
     });
   });
 
@@ -93,18 +90,13 @@ function buildBracket() {
   // QUARTER-FINALS (4 matches)
   // ─────────────────────────────────────────────────────────────────
   const qfPairings = [
-    { a: r16Winners[0], b: r16Winners[1], sA: 2, sB: 0, status: "finished", conf: 76, predWin: "France", predSA: 2, predSB: 0 },
-    { a: r16Winners[2], b: r16Winners[3], sA: 1, sB: 2, status: "finished", conf: 65, predWin: "Mexico", predSA: 1, predSB: 2 },
-    { a: r16Winners[4], b: r16Winners[5], sA: 2, sB: 1, status: "live", conf: 54, predWin: "Spain", minute: "67'", predSA: 2, predSB: 1 },
-    { a: r16Winners[6], b: r16Winners[7], sA: null, sB: null, status: "scheduled", conf: 72, predWin: "Argentina", predSA: 2, predSB: 1 },
+    { a: "France",    b: "Morocco",     sA: 2, sB: 0, status: "finished", conf: 76, predWin: "France", predSA: 2, predSB: 0, date: "Fri, 10 Jul" },
+    { a: "Norway",    b: "England",     sA: 1, sB: 2, status: "finished", conf: 65, predWin: "England", predSA: 1, predSB: 2, date: "Sun, 12 Jul" },
+    { a: "Spain",     b: "Belgium",     sA: 2, sB: 1, status: "finished", conf: 54, predWin: "Spain", predSA: 2, predSB: 1, date: "Sat, 11 Jul" },
+    { a: "Argentina", b: "Switzerland", sA: 3, sB: 1, status: "finished", conf: 72, predWin: "Argentina", predSA: 3, predSB: 1, date: "Sun, 12 Jul" },
   ];
 
-  const qfWinners = qfPairings.map(m => {
-    if (m.status !== "finished" || !m.a || !m.b) return null;
-    if (m.sA > m.sB) return m.a;
-    if (m.sB > m.sA) return m.b;
-    return m.predWin;
-  });
+  const qfWinners = ["France", "England", "Spain", "Argentina"];
 
   qfPairings.forEach((m, i) => {
     const winner = qfWinners[i];
@@ -130,8 +122,7 @@ function buildBracket() {
       nextMatchId: `sf-${nextMatchIdx}`,
       nextMatchSlot: nextSlot,
       venue: venue(i + 8),
-      datetime: `2026-07-0${8 + Math.floor(i / 2)}T${18 + (i % 2) * 3}:00:00Z`,
-      minute: m.minute || null,
+      datetime: m.date,
     });
   });
 
@@ -139,21 +130,11 @@ function buildBracket() {
   // SEMI-FINALS (2 matches)
   // ─────────────────────────────────────────────────────────────────
   const sfPairings = [
-    { a: qfWinners[0], b: qfWinners[1], sA: null, sB: null, status: "scheduled", conf: 42, predWin: "France", predSA: 2, predSB: 1 },
-    { a: qfWinners[2], b: qfWinners[3], sA: null, sB: null, status: "scheduled", conf: 70, predWin: "Argentina", predSA: 1, predSB: 2 },
+    { a: "France",  b: "Spain",     sA: 0, sB: 2, status: "finished", conf: 65, predWin: "Spain", predSA: 0, predSB: 2, date: "Wed, 15 Jul" },
+    { a: "England", b: "Argentina", sA: 1, sB: 2, status: "finished", conf: 70, predWin: "Argentina", predSA: 1, predSB: 2, date: "Thu, 16 Jul" },
   ];
 
-  const sfWinners = sfPairings.map(m => {
-    if (m.status !== "finished" || !m.a || !m.b) return null;
-    if (m.sA > m.sB) return m.a;
-    if (m.sB > m.sA) return m.b;
-    return m.predWin;
-  });
-
-  const sfLosers = sfPairings.map((m, i) => {
-    if (m.status !== "finished" || !m.a || !m.b) return null;
-    return sfWinners[i] === m.a ? m.b : m.a;
-  });
+  const sfWinners = ["Spain", "Argentina"];
 
   sfPairings.forEach((m, i) => {
     matches.push({
@@ -175,7 +156,7 @@ function buildBracket() {
       nextMatchId: "final",
       nextMatchSlot: i === 0 ? "teamA" : "teamB",
       venue: venue(i + 12),
-      datetime: `2026-07-11T${18 + i * 3}:00:00Z`,
+      datetime: m.date,
     });
   });
 
@@ -186,22 +167,22 @@ function buildBracket() {
     id: "third_place",
     round: "third_place",
     matchNumber: 0,
-    teamA: sfLosers[0],
-    teamB: sfLosers[1],
-    teamACode: sfLosers[0] ? code(sfLosers[0]) : null,
-    teamBCode: sfLosers[1] ? code(sfLosers[1]) : null,
-    scoreA: null,
-    scoreB: null,
-    status: "scheduled",
-    winner: null,
+    teamA: "France",
+    teamB: "England",
+    teamACode: code("France"),
+    teamBCode: code("England"),
+    scoreA: 4,
+    scoreB: 6,
+    status: "finished",
+    winner: "England",
     predictionConfidence: 36,
-    predictedWinner: "Argentina", // Fallback prediction from CSV
-    predictedScoreA: 2,
-    predictedScoreB: 1,
+    predictedWinner: "England",
+    predictedScoreA: 4,
+    predictedScoreB: 6,
     nextMatchId: null,
     nextMatchSlot: null,
     venue: "Hard Rock Stadium, Miami",
-    datetime: "2026-07-18T18:00:00Z",
+    datetime: "Sun, 19 Jul",
     feedsFrom: ["sf-0", "sf-1"],
     feedsFromSlot: "loser",
   });
@@ -239,19 +220,22 @@ function buildBracket() {
 // ─────────────────────────────────────────────────────────────────────
 function buildStatLeaders() {
   const players = [
-    { id: "p1",  name: "Kylian Mbappé",       country: "France",      pos: "FW", club: "Real Madrid",      goals: 5, assists: 2, yellowCards: 0, cleanSheets: 0 },
-    { id: "p2",  name: "Lionel Messi",         country: "Argentina",   pos: "FW", club: "Inter Miami",      goals: 4, assists: 4, yellowCards: 1, cleanSheets: 0 },
-    { id: "p3",  name: "Vinícius Jr.",         country: "Brazil",      pos: "FW", club: "Real Madrid",      goals: 4, assists: 1, yellowCards: 2, cleanSheets: 0 },
-    { id: "p4",  name: "Harry Kane",           country: "England",     pos: "FW", club: "Bayern Munich",    goals: 3, assists: 2, yellowCards: 0, cleanSheets: 0 },
-    { id: "p5",  name: "Lamine Yamal",         country: "Spain",       pos: "FW", club: "Barcelona",        goals: 3, assists: 3, yellowCards: 0, cleanSheets: 0 },
-    { id: "p6",  name: "Bruno Fernandes",      country: "Portugal",    pos: "MF", club: "Al Nassr",         goals: 3, assists: 2, yellowCards: 1, cleanSheets: 0 },
-    { id: "p7",  name: "Kevin De Bruyne",      country: "Belgium",     pos: "MF", club: "Man City",         goals: 1, assists: 5, yellowCards: 0, cleanSheets: 0 },
-    { id: "p8",  name: "Jude Bellingham",      country: "England",     pos: "MF", club: "Real Madrid",      goals: 2, assists: 3, yellowCards: 1, cleanSheets: 0 },
-    { id: "p9",  name: "Erling Haaland",       country: "Norway",      pos: "FW", club: "Man City",         goals: 3, assists: 0, yellowCards: 1, cleanSheets: 0 },
-    { id: "p10", name: "Alisson Becker",       country: "Brazil",      pos: "GK", club: "Liverpool",        goals: 0, assists: 0, yellowCards: 0, cleanSheets: 3 },
-    { id: "p11", name: "Emiliano Martínez",    country: "Argentina",   pos: "GK", club: "Aston Villa",      goals: 0, assists: 0, yellowCards: 1, cleanSheets: 4 },
-    { id: "p12", name: "Mike Maignan",         country: "France",      pos: "GK", club: "AC Milan",         goals: 0, assists: 0, yellowCards: 0, cleanSheets: 4 },
-    { id: "p13", name: "Rúben Dias",           country: "Portugal",    pos: "DF", club: "Man City",         goals: 0, assists: 1, yellowCards: 3, cleanSheets: 3 },
+    { id: "p1",  name: "Kylian Mbappé",       country: "France",      pos: "FW", club: "Real Madrid",      goals: 10, assists: 2, yellowCards: 1, cleanSheets: 0 },
+    { id: "p2",  name: "Lionel Messi",         country: "Argentina",   pos: "FW", club: "Inter Miami",      goals: 8,  assists: 4, yellowCards: 0, cleanSheets: 0 },
+    { id: "p3",  name: "Erling Haaland",       country: "Norway",      pos: "FW", club: "Man City",         goals: 7,  assists: 1, yellowCards: 1, cleanSheets: 0 },
+    { id: "p4",  name: "Jude Bellingham",      country: "England",     pos: "MF", club: "Real Madrid",      goals: 7,  assists: 3, yellowCards: 1, cleanSheets: 0 },
+    { id: "p5",  name: "Ousmane Dembélé",    country: "France",      pos: "FW", club: "Paris SG",         goals: 6,  assists: 3, yellowCards: 1, cleanSheets: 0 },
+    { id: "p6",  name: "Harry Kane",           country: "England",     pos: "FW", club: "Bayern Munich",    goals: 6,  assists: 2, yellowCards: 0, cleanSheets: 0 },
+    { id: "p7",  name: "Vinícius Jr.",         country: "Brazil",      pos: "FW", club: "Real Madrid",      goals: 5,  assists: 1, yellowCards: 2, cleanSheets: 0 },
+    { id: "p8",  name: "Lamine Yamal",         country: "Spain",       pos: "FW", club: "Barcelona",        goals: 3,  assists: 4, yellowCards: 0, cleanSheets: 0 },
+    { id: "p9",  name: "Bruno Fernandes",      country: "Portugal",    pos: "MF", club: "Man United",       goals: 3,  assists: 3, yellowCards: 1, cleanSheets: 0 },
+    { id: "p10", name: "Antoine Griezmann",    country: "France",      pos: "FW", club: "Atletico Madrid",  goals: 2,  assists: 5, yellowCards: 1, cleanSheets: 0 },
+    { id: "p11", name: "Kevin De Bruyne",      country: "Belgium",     pos: "MF", club: "Man City",         goals: 1,  assists: 5, yellowCards: 0, cleanSheets: 0 },
+    { id: "p12", name: "Alisson Becker",       country: "Brazil",      pos: "GK", club: "Liverpool",        goals: 0,  assists: 0, yellowCards: 0, cleanSheets: 3 },
+    { id: "p13", name: "Emiliano Martínez",    country: "Argentina",   pos: "GK", club: "Aston Villa",      goals: 0,  assists: 0, yellowCards: 1, cleanSheets: 4 },
+    { id: "p14", name: "Mike Maignan",         country: "France",      pos: "GK", club: "AC Milan",         goals: 0,  assists: 0, yellowCards: 0, cleanSheets: 4 },
+    { id: "p15", name: "Unai Simón",          country: "Spain",       pos: "GK", club: "Athletic Club",    goals: 0,  assists: 0, yellowCards: 0, cleanSheets: 3 },
+    { id: "p16", name: "Rúben Dias",           country: "Portugal",    pos: "DF", club: "Man City",         goals: 0,  assists: 1, yellowCards: 3, cleanSheets: 3 },
   ];
 
   return players.map(p => ({

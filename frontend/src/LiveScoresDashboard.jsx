@@ -10,7 +10,7 @@ import {
   Radio, Check, X, Clock, Trophy, Settings, Hash, Volume2, Shield,
   Calendar, Sparkles, TrendingUp, Zap, Target, MessageSquare, Send
 } from "lucide-react";
-import MatchdayChat from "./MatchdayChat";
+
 
 // ─── Country → ISO flag code ───────────────────────────────────────────────
 const COUNTRY_CODES = {

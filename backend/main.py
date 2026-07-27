@@ -56,8 +56,9 @@ from fastapi.middleware.cors import CORSMiddleware
 import bracket_projection
 
 WC26_BASE = "https://worldcup26.ir"
-WC26_EMAIL = os.environ.get("WC26_EMAIL", "antigravity_test_999@example.com")
-WC26_PASSWORD = os.environ.get("WC26_PASSWORD", "SuperSecretPassword123!")
+WC26_EMAIL = os.environ.get("WC26_EMAIL", "")
+WC26_PASSWORD = os.environ.get("WC26_PASSWORD", "")
+WC26_API_KEY = os.environ.get("WC26_API_KEY", "")
 PREDICTIONS_CSV = os.environ.get("PREDICTIONS_CSV", "./wc2026_group_match_predictions.csv")
 
 # How long we trust our own in-memory cache of /get/games before refetching.
@@ -86,6 +87,9 @@ TOKEN_TTL = 60 * 60 * 24 * 80  # refresh a few days before expiry
 
 
 async def get_token() -> str:
+    if WC26_API_KEY:
+        return WC26_API_KEY
+
     if _token_cache["token"] and (time.time() - _token_cache["obtained_at"]) < TOKEN_TTL:
         return _token_cache["token"]
 
@@ -739,8 +743,8 @@ async def get_live_data():
                 "countryCode": "fr",
                 "country": "France",
                 "team": "Paris Saint-Germain",
-                "photo": null,
-                "stats": { "goals": 7, "assists": 2, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 }
+                "photo": None,
+                "stats": { "goals": 10, "assists": 2, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 }
             },
             {
                 "id": "p2",
@@ -748,92 +752,205 @@ async def get_live_data():
                 "countryCode": "ar",
                 "country": "Argentina",
                 "team": "Inter Miami",
-                "photo": null,
-                "stats": { "goals": 5, "assists": 4, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 }
+                "photo": None,
+                "stats": { "goals": 8, "assists": 4, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 }
             },
             {
                 "id": "p3",
-                "name": "Vinícius Júnior",
-                "countryCode": "br",
-                "country": "Brazil",
-                "team": "Real Madrid",
-                "photo": null,
-                "stats": { "goals": 4, "assists": 1, "yellowCards": 2, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
+                "name": "Erling Haaland",
+                "countryCode": "no",
+                "country": "Norway",
+                "team": "Manchester City",
+                "photo": None,
+                "stats": { "goals": 7, "assists": 1, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
             },
             {
                 "id": "p4",
-                "name": "Álvaro Morata",
-                "countryCode": "es",
-                "country": "Spain",
-                "team": "Atletico Madrid",
-                "photo": null,
-                "stats": { "goals": 4, "assists": 0, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
+                "name": "Jude Bellingham",
+                "countryCode": "gb-eng",
+                "country": "England",
+                "team": "Real Madrid",
+                "photo": None,
+                "stats": { "goals": 7, "assists": 3, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 }
             },
             {
                 "id": "p5",
+                "name": "Ousmane Dembélé",
+                "countryCode": "fr",
+                "country": "France",
+                "team": "Paris Saint-Germain",
+                "photo": None,
+                "stats": { "goals": 6, "assists": 3, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 }
+            },
+            {
+                "id": "p6",
                 "name": "Harry Kane",
                 "countryCode": "gb-eng",
                 "country": "England",
                 "team": "Bayern Munich",
-                "photo": null,
-                "stats": { "goals": 3, "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
+                "photo": None,
+                "stats": { "goals": 6, "assists": 2, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 }
             },
             {
-                "id": "p6",
+                "id": "p7",
+                "name": "Vinícius Júnior",
+                "countryCode": "br",
+                "country": "Brazil",
+                "team": "Real Madrid",
+                "photo": None,
+                "stats": { "goals": 5, "assists": 1, "yellowCards": 2, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
+            },
+            {
+                "id": "p8",
+                "name": "Álvaro Morata",
+                "countryCode": "es",
+                "country": "Spain",
+                "team": "Atletico Madrid",
+                "photo": None,
+                "stats": { "goals": 4, "assists": 0, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
+            },
+            {
+                "id": "p9",
+                "name": "Jamal Musiala",
+                "countryCode": "de",
+                "country": "Germany",
+                "team": "Bayern Munich",
+                "photo": None,
+                "stats": { "goals": 4, "assists": 2, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 4 }
+            },
+            {
+                "id": "p10",
+                "name": "Bukayo Saka",
+                "countryCode": "gb-eng",
+                "country": "England",
+                "team": "Arsenal",
+                "photo": None,
+                "stats": { "goals": 4, "assists": 2, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
+            },
+            {
+                "id": "p11",
                 "name": "Antoine Griezmann",
                 "countryCode": "fr",
                 "country": "France",
                 "team": "Atletico Madrid",
-                "photo": null,
-                "stats": { "goals": 1, "assists": 4, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 }
+                "photo": None,
+                "stats": { "goals": 2, "assists": 5, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 }
             },
             {
-                "id": "p7",
+                "id": "p12",
                 "name": "Rodri",
                 "countryCode": "es",
                 "country": "Spain",
                 "team": "Manchester City",
-                "photo": null,
+                "photo": None,
                 "stats": { "goals": 1, "assists": 3, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 }
             },
             {
-                "id": "p8",
-                "name": "Nicolás Otamendi",
-                "countryCode": "ar",
-                "country": "Argentina",
-                "team": "Benfica",
-                "photo": null,
-                "stats": { "goals": 0, "assists": 0, "yellowCards": 3, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 }
-            },
-            {
-                "id": "p10",
+                "id": "p13",
                 "name": "Mike Maignan",
                 "countryCode": "fr",
                 "country": "France",
                 "team": "AC Milan",
-                "photo": null,
-                "stats": { "goals": 0, "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 4, "matchesPlayed": 6 }
-            },
-            {
-                "id": "p11",
-                "name": "Unai Simón",
-                "countryCode": "es",
-                "country": "Spain",
-                "team": "Athletic Club",
-                "photo": null,
-                "stats": { "goals": 0, "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 3, "matchesPlayed": 5 }
-            },
-            {
-                "id": "p12",
-                "name": "Pepe",
-                "countryCode": "pt",
-                "country": "Portugal",
-                "team": "Porto",
-                "photo": null,
-                "stats": { "goals": 0, "assists": 0, "yellowCards": 1, "redCards": 1, "cleanSheets": 2, "matchesPlayed": 4 }
+                "photo": None,
+                "stats": { "goals": 0, "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 4, "matchesPlayed": 7 }
             }
         ]
     }
+
+
+# ---------------------------------------------------------------------------
+# 10. Player Statistics Endpoint
+# ---------------------------------------------------------------------------
+
+DEFAULT_PLAYERS = [
+    { "id": "p1",  "name": "Kylian Mbappé",      "countryCode": "fr",     "country": "France",        "team": "Paris Saint-Germain", "stats": { "goals": 10, "assists": 4, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p2",  "name": "Lionel Messi",        "countryCode": "ar",     "country": "Argentina",     "team": "Inter Miami",         "stats": { "goals": 8,  "assists": 4, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p3",  "name": "Erling Haaland",      "countryCode": "no",     "country": "Norway",        "team": "Manchester City",     "stats": { "goals": 7,  "assists": 1, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 } },
+    { "id": "p4",  "name": "Jude Bellingham",     "countryCode": "gb-eng", "country": "England",       "team": "Real Madrid",         "stats": { "goals": 7,  "assists": 2, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 } },
+    { "id": "p5",  "name": "Ousmane Dembélé",     "countryCode": "fr",     "country": "France",        "team": "Paris Saint-Germain", "stats": { "goals": 6,  "assists": 2, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p6",  "name": "Harry Kane",          "countryCode": "gb-eng", "country": "England",       "team": "Bayern Munich",       "stats": { "goals": 6,  "assists": 1, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 6 } },
+    { "id": "p7",  "name": "Michael Olise",       "countryCode": "fr",     "country": "France",        "team": "Bayern Munich",       "stats": { "goals": 3,  "assists": 5, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p8",  "name": "Bruno Guimarães",     "countryCode": "br",     "country": "Brazil",        "team": "Newcastle United",    "stats": { "goals": 2,  "assists": 4, "yellowCards": 2, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 } },
+    { "id": "p9",  "name": "Vinícius Júnior",     "countryCode": "br",     "country": "Brazil",        "team": "Real Madrid",         "stats": { "goals": 5,  "assists": 3, "yellowCards": 2, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 5 } },
+    { "id": "p10", "name": "Jamal Musiala",       "countryCode": "de",     "country": "Germany",       "team": "Bayern Munich",       "stats": { "goals": 4,  "assists": 2, "yellowCards": 1, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 4 } },
+    { "id": "p11", "name": "Lamine Yamal",        "countryCode": "es",     "country": "Spain",         "team": "Barcelona",           "stats": { "goals": 3,  "assists": 3, "yellowCards": 0, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 8 } },
+    { "id": "p12", "name": "Leandro Paredes",     "countryCode": "ar",     "country": "Argentina",     "team": "Roma",                "stats": { "goals": 0,  "assists": 1, "yellowCards": 3, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p13", "name": "Nicolás Otamendi",    "countryCode": "ar",     "country": "Argentina",     "team": "Benfica",             "stats": { "goals": 0,  "assists": 0, "yellowCards": 3, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p14", "name": "Cristian Romero",     "countryCode": "ar",     "country": "Argentina",     "team": "Tottenham Hotspur",   "stats": { "goals": 0,  "assists": 0, "yellowCards": 3, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p15", "name": "Lisandro Martínez",   "countryCode": "ar",     "country": "Argentina",     "team": "Manchester United",   "stats": { "goals": 0,  "assists": 0, "yellowCards": 3, "redCards": 0, "cleanSheets": 0, "matchesPlayed": 7 } },
+    { "id": "p16", "name": "Sphephelo Sithole",   "countryCode": "za",     "country": "South Africa",  "team": "TS Galaxy",           "stats": { "goals": 0,  "assists": 0, "yellowCards": 0, "redCards": 1, "cleanSheets": 0, "matchesPlayed": 1 } },
+    { "id": "p17", "name": "Themba Zwane",         "countryCode": "za",     "country": "South Africa",  "team": "Mamelodi Sundowns",   "stats": { "goals": 0,  "assists": 0, "yellowCards": 0, "redCards": 1, "cleanSheets": 0, "matchesPlayed": 1 } },
+    { "id": "p18", "name": "César Montes",         "countryCode": "mx",     "country": "Mexico",        "team": "Monterrey",           "stats": { "goals": 0,  "assists": 0, "yellowCards": 0, "redCards": 1, "cleanSheets": 0, "matchesPlayed": 1 } },
+    { "id": "p19", "name": "Enzo Fernández",       "countryCode": "ar",     "country": "Argentina",     "team": "Chelsea",             "stats": { "goals": 0,  "assists": 1, "yellowCards": 1, "redCards": 1, "cleanSheets": 0, "matchesPlayed": 8 } },
+    { "id": "p20", "name": "Unai Simón",           "countryCode": "es",     "country": "Spain",         "team": "Athletic Club",       "stats": { "goals": 0,  "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 7, "matchesPlayed": 8 } },
+    { "id": "p21", "name": "Emiliano Martínez",    "countryCode": "ar",     "country": "Argentina",     "team": "Aston Villa",         "stats": { "goals": 0,  "assists": 0, "yellowCards": 1, "redCards": 0, "cleanSheets": 4, "matchesPlayed": 8 } },
+    { "id": "p22", "name": "Mike Maignan",         "countryCode": "fr",     "country": "France",        "team": "AC Milan",            "stats": { "goals": 0,  "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 4, "matchesPlayed": 7 } },
+    { "id": "p23", "name": "Alisson Becker",       "countryCode": "br",     "country": "Brazil",        "team": "Liverpool",           "stats": { "goals": 0,  "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 3, "matchesPlayed": 5 } },
+    { "id": "p24", "name": "Jordan Pickford",      "countryCode": "gb-eng", "country": "England",       "team": "Everton",             "stats": { "goals": 0,  "assists": 0, "yellowCards": 0, "redCards": 0, "cleanSheets": 3, "matchesPlayed": 6 } },
+]
+
+import re
+
+def compute_live_player_stats(games: list[dict]) -> list[dict]:
+    # Name mapping to standardize variations in scorer strings
+    alias_map = {
+        "Mbappé": "Kylian Mbappé",
+        "K. Mbappé": "Kylian Mbappé",
+        "Messi": "Lionel Messi",
+        "L. Messi": "Lionel Messi",
+        "Haaland": "Erling Haaland",
+        "E. Haaland": "Erling Haaland",
+        "Bellingham": "Jude Bellingham",
+        "J. Bellingham": "Jude Bellingham",
+        "Dembélé": "Ousmane Dembélé",
+        "O. Dembélé": "Ousmane Dembélé",
+        "Kane": "Harry Kane",
+        "H. Kane": "Harry Kane",
+        "Hri Kin": "Harry Kane",
+        "V. Júnior": "Vinícius Júnior",
+        "Vinícius Jr": "Vinícius Júnior",
+        "Musiala": "Jamal Musiala",
+        "J. Musiala": "Jamal Musiala",
+        "Saka": "Bukayo Saka",
+        "B. Saka": "Bukayo Saka",
+        "Bvkaiv Saka": "Bukayo Saka",
+    }
+
+    live_goals = {}
+    for g in games:
+        for field in ["home_scorers", "away_scorers"]:
+            raw = g.get(field)
+            if not raw or str(raw).lower() in ("null", "none"):
+                continue
+            if isinstance(raw, str):
+                cleaned = raw.strip("{}")
+                items = [it.strip(' "') for it in cleaned.split(',')]
+                for item in items:
+                    name_part = re.sub(r"\s*\d+['′\+]*(?:\([A-Za-z0-9]+\))?", "", item).strip()
+                    if name_part:
+                        mapped = alias_map.get(name_part, name_part)
+                        live_goals[mapped] = live_goals.get(mapped, 0) + 1
+
+    players = [dict(p) for p in DEFAULT_PLAYERS]
+    for p in players:
+        p["stats"] = dict(p.get("stats", {}))
+        p_name = p["name"]
+        if p_name in live_goals:
+            p["stats"]["goals"] = max(p["stats"]["goals"], live_goals[p_name])
+            p["goals"] = p["stats"]["goals"]
+
+    players.sort(key=lambda x: x["stats"].get("goals", 0), reverse=True)
+    return players
+
+@app.get("/api/player-stats")
+async def get_player_stats():
+    try:
+        games = await fetch_raw_games()
+        return compute_live_player_stats(games)
+    except Exception as e:
+        print(f"[warn] Live player stats calculation fallback: {e}")
+        return DEFAULT_PLAYERS
+
 
 # ---------------------------------------------------------------------------
 # 10. Health Check
@@ -846,3 +963,45 @@ async def health():
         "predictions_loaded": len(PREDICTIONS),
         "projection_model_ready": bracket_projection.model_ready(),
     }
+
+
+# ---------------------------------------------------------------------------
+# 11. News Proxy — fetches World Cup 2026 news from NewsAPI.org server-side
+#     (browser cannot call NewsAPI directly due to CORS on localhost)
+# ---------------------------------------------------------------------------
+
+NEWS_API_KEY = os.environ.get("NEWS_API_KEY", "")
+
+@app.get("/api/news")
+async def get_wc_news(pageSize: int = 6, q: str = "FIFA World Cup 2026"):
+    """
+    Proxy NewsAPI.org to avoid browser CORS restrictions.
+    Returns latest WC 2026 articles sorted by publishedAt.
+    """
+    url = (
+        f"https://newsapi.org/v2/everything"
+        f"?q={q.replace(' ', '+')}"
+        f"&language=en"
+        f"&sortBy=publishedAt"
+        f"&pageSize={min(pageSize, 20)}"
+        f"&apiKey={NEWS_API_KEY}"
+    )
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(url, headers={"User-Agent": "FIFA2026App/1.0"})
+            data = resp.json()
+
+        if data.get("status") == "ok" and data.get("articles"):
+            # Filter out removed articles
+            articles = [
+                a for a in data["articles"]
+                if a.get("title") and a["title"] != "[Removed]" and a.get("description")
+            ]
+            return {"status": "ok", "articles": articles, "totalResults": len(articles)}
+        else:
+            raise HTTPException(status_code=502, detail=data.get("message", "NewsAPI error"))
+    except httpx.TimeoutException:
+        raise HTTPException(status_code=504, detail="NewsAPI request timed out")
+    except Exception as e:
+        print(f"[warn] /api/news error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))

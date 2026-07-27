@@ -24,47 +24,88 @@ const ROUND_LABELS = {
 
 const ROUND_ORDER = ['r16', 'qf', 'sf', 'final'];
 
+const TEAM_RATINGS = {
+  "Argentina": 1773.9,
+  "France": 1759.5,
+  "Brazil": 1744.3,
+  "England": 1728.8,
+  "Spain": 1720.6,
+  "Germany": 1710.2,
+  "Netherlands": 1694.7,
+  "Portugal": 1693.5,
+  "Belgium": 1680.4,
+  "Colombia": 1678.2,
+  "Italy": 1672.1,
+  "Croatia": 1660.8,
+  "Uruguay": 1656.3,
+  "Mexico": 1643.7,
+  "USA": 1640.5,
+  "United States": 1640.5,
+  "Switzerland": 1635.2,
+  "Denmark": 1630.8,
+  "Japan": 1625.4,
+  "Morocco": 1620.1,
+  "Senegal": 1612.6,
+  "South Korea": 1605.3,
+  "Australia": 1598.7,
+  "Ecuador": 1592.4,
+  "Canada": 1588.1,
+  "Turkey": 1585.6,
+  "Egypt": 1580.2,
+  "Saudi Arabia": 1575.8,
+  "Tunisia": 1570.3,
+  "Ghana": 1565.9,
+  "Norway": 1560.4,
+  "Sweden": 1555.1,
+  "Paraguay": 1550.7,
+  "Algeria": 1546.3,
+  "Panama": 1541.8,
+  "Cape Verde": 1537.4,
+  "Bosnia and Herzegovina": 1533.0,
+  "DR Congo": 1528.6,
+  "Ivory Coast": 1524.2,
+  "Wales": 1519.8,
+  "Austria": 1515.4,
+  "Serbia": 1510.9,
+  "Peru": 1506.5,
+  "Chile": 1502.1,
+  "Cameroon": 1497.7,
+  "Nigeria": 1493.3,
+  "Qatar": 1488.9,
+  "Iran": 1484.5,
+  "IR Iran": 1484.5,
+  "Costa Rica": 1480.1,
+};
+
+function getTeamRating(teamName) {
+  if (!teamName) return 1500;
+  return TEAM_RATINGS[teamName] || 1500;
+}
+
+function predictMatch(teamA, teamB) {
+  if (!teamA || !teamB) return { predictedWinner: null, predictionConfidence: 0 };
+  const rA = getTeamRating(teamA);
+  const rB = getTeamRating(teamB);
+  const probA = 1 / (1 + Math.pow(10, -(rA - rB) / 400));
+  const predictedWinner = probA >= 0.5 ? teamA : teamB;
+  const confidence = Math.round((probA >= 0.5 ? probA : (1 - probA)) * 100);
+  return { predictedWinner, predictionConfidence: confidence };
+}
+
 /**
  * Compute the vertical spacing and padding for each round
  */
 function getRoundSpacing(round, matchCount) {
   switch (round) {
     case 'r16': return { gap: 8, topPad: 0 };
-    case 'qf':  return { gap: 136, topPad: 64 };
-    case 'sf':  return { gap: 392, topPad: 192 };
+    case 'qf': return { gap: 136, topPad: 64 };
+    case 'sf': return { gap: 392, topPad: 192 };
     case 'final': return { gap: 0, topPad: 448 };
     default: return { gap: 8, topPad: 0 };
   }
 }
 
-/**
- * Derive 3rd place teams from the semi-final matches
- */
-function derive3rdPlaceTeams(sfMatches, thirdPlaceMatch) {
-  if (thirdPlaceMatch.teamA && thirdPlaceMatch.teamB) {
-    return thirdPlaceMatch;
-  }
 
-  const sf0 = sfMatches.find(m => m.matchNumber === 0);
-  const sf1 = sfMatches.find(m => m.matchNumber === 1);
-
-  let teamA = thirdPlaceMatch.teamA;
-  let teamACode = thirdPlaceMatch.teamACode;
-  let teamB = thirdPlaceMatch.teamB;
-  let teamBCode = thirdPlaceMatch.teamBCode;
-
-  if (!teamA && sf0 && sf0.status === 'finished' && sf0.winner) {
-    teamA = sf0.winner === sf0.teamA ? sf0.teamB : sf0.teamA;
-    teamACode = sf0.winner === sf0.teamA ? sf0.teamBCode : sf0.teamACode;
-  }
-
-  if (!teamB && sf1 && sf1.status === 'finished' && sf1.winner) {
-    teamB = sf1.winner === sf1.teamA ? sf1.teamB : sf1.teamA;
-    teamBCode = sf1.winner === sf1.teamA ? sf1.teamBCode : sf1.teamACode;
-  }
-
-  return { ...thirdPlaceMatch, teamA, teamACode, teamB, teamBCode };
-}
 
 
 export default function TournamentBracket({
@@ -84,13 +125,94 @@ export default function TournamentBracket({
     return groups;
   }, [bracket]);
 
-  // Get 3rd place match with derived teams
+  // Compute the 3rd Place match dynamically based on Semi-Final results
   const thirdPlaceMatch = useMemo(() => {
-    const raw = bracket.find(m => m.round === 'third_place');
-    if (!raw) return null;
     const sfMatches = roundGroups.sf || [];
-    return derive3rdPlaceTeams(sfMatches, raw);
-  }, [bracket, roundGroups]);
+    const sf0 = sfMatches[0];
+    const sf1 = sfMatches[1];
+
+    let teamA = null;
+    let teamACode = null;
+    let teamB = null;
+    let teamBCode = null;
+
+    if (isActual) {
+      if (sf0) {
+        if (sf0.winner) {
+          teamA = sf0.winner === sf0.teamA ? sf0.teamB : sf0.teamA;
+          teamACode = sf0.winner === sf0.teamA ? sf0.teamBCode : sf0.teamACode;
+        } else if (sf0.status === 'finished' && sf0.scoreA !== null && sf0.scoreB !== null) {
+          teamA = sf0.scoreA < sf0.scoreB ? sf0.teamA : sf0.teamB;
+          teamACode = sf0.scoreA < sf0.scoreB ? sf0.teamACode : sf0.teamBCode;
+        }
+      }
+      if (sf1) {
+        if (sf1.winner) {
+          teamB = sf1.winner === sf1.teamA ? sf1.teamB : sf1.teamA;
+          teamBCode = sf1.winner === sf1.teamA ? sf1.teamBCode : sf1.teamACode;
+        } else if (sf1.status === 'finished' && sf1.scoreA !== null && sf1.scoreB !== null) {
+          teamB = sf1.scoreA < sf1.scoreB ? sf1.teamA : sf1.teamB;
+          teamBCode = sf1.scoreA < sf1.scoreB ? sf1.teamACode : sf1.teamBCode;
+        }
+      }
+    } else {
+      if (sf0) {
+        if (sf0.predictedWinner) {
+          teamA = sf0.predictedWinner === sf0.teamA ? sf0.teamB : sf0.teamA;
+          teamACode = sf0.predictedWinner === sf0.teamA ? sf0.teamBCode : sf0.teamACode;
+        } else if (sf0.winner) {
+          teamA = sf0.winner === sf0.teamA ? sf0.teamB : sf0.teamA;
+          teamACode = sf0.winner === sf0.teamA ? sf0.teamBCode : sf0.teamACode;
+        }
+      }
+      if (sf1) {
+        if (sf1.predictedWinner) {
+          teamB = sf1.predictedWinner === sf1.teamA ? sf1.teamB : sf1.teamA;
+          teamBCode = sf1.predictedWinner === sf1.teamA ? sf1.teamBCode : sf1.teamACode;
+        } else if (sf1.winner) {
+          teamB = sf1.winner === sf1.teamA ? sf1.teamB : sf1.teamA;
+          teamBCode = sf1.winner === sf1.teamA ? sf1.teamBCode : sf1.teamACode;
+        }
+      }
+    }
+
+    const existing = bracket.find(m => m.id === 'third_place' || m.round === 'third_place' || m.id === (isActual ? '3rd-place-actual' : '3rd-place-prediction'));
+
+    let predictedWinner = existing?.predictedWinner ?? null;
+    let predictionConfidence = existing?.predictionConfidence ?? 0;
+    let scoreA = existing?.scoreA ?? null;
+    let scoreB = existing?.scoreB ?? null;
+
+    if (!isActual && teamA && teamB) {
+      const pred = predictMatch(teamA, teamB);
+      predictedWinner = pred.predictedWinner;
+      predictionConfidence = pred.predictionConfidence;
+      if (scoreA === null || scoreB === null) {
+        scoreA = predictedWinner === teamA ? 2 : 1;
+        scoreB = predictedWinner === teamB ? 2 : 1;
+      }
+    }
+
+    return {
+      id: isActual ? '3rd-place-actual' : '3rd-place-prediction',
+      round: '3rd Place Play-off',
+      teamA,
+      teamACode,
+      teamB,
+      teamBCode,
+      status: existing?.status || 'scheduled',
+      scoreA: existing?.scoreA ?? null,
+      scoreB: existing?.scoreB ?? null,
+      winner: existing?.winner ?? null,
+      predictedWinner,
+      predictionConfidence,
+      isThirdPlace: true,
+      isActual,
+      awaitingResults: existing?.awaitingResults ?? (isActual ? true : false),
+      penaltiesA: existing?.penaltiesA ?? null,
+      penaltiesB: existing?.penaltiesB ?? null,
+    };
+  }, [bracket, roundGroups.sf, isActual]);
 
   // For the SF losers label when they're not yet determined
   const sf0 = roundGroups.sf?.[0];
@@ -187,64 +309,7 @@ export default function TournamentBracket({
                   ))}
                 </div>
 
-                {/* 3rd Place Play-off — positioned below SF column */}
-                {round === 'sf' && thirdPlaceMatch && (
-                  <div style={{
-                    marginTop: '32px',
-                    position: 'relative',
-                  }}>
-                    {/* Connector lines from SF matches to 3rd place */}
-                    <div className="third-place-connector" />
 
-                    <div style={{
-                      padding: '6px 16px',
-                      borderRadius: '8px',
-                      marginBottom: '12px',
-                      border: '1px solid rgba(205, 127, 50, 0.3)',
-                      background: 'rgba(205, 127, 50, 0.04)',
-                      textAlign: 'center',
-                    }}>
-                      <span style={{
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        color: '#CD7F32',
-                        letterSpacing: '0.06em',
-                        textTransform: 'uppercase',
-                      }}>
-                        3rd Place Play-off
-                      </span>
-                    </div>
-
-                    <MatchNode
-                      {...thirdPlaceMatch}
-                      teamA={thirdPlaceMatch.teamA}
-                      teamB={thirdPlaceMatch.teamB}
-                      isThirdPlace={true}
-                      isActual={isActual}
-                    />
-
-                    {/* Show which SF each team comes from */}
-                    <div style={{
-                      marginTop: '8px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '2px',
-                    }}>
-                      <span style={{
-                        fontSize: '9px', color: 'var(--text-subtle)',
-                        fontStyle: 'italic',
-                      }}>
-                        ← Loser of SF1{sf0?.teamA && sf0?.teamB ? ` (${sf0.teamA} vs ${sf0.teamB})` : ''}
-                      </span>
-                      <span style={{
-                        fontSize: '9px', color: 'var(--text-subtle)',
-                        fontStyle: 'italic',
-                      }}>
-                        ← Loser of SF2{sf1?.teamA && sf1?.teamB ? ` (${sf1.teamA} vs ${sf1.teamB})` : ''}
-                      </span>
-                    </div>
-                  </div>
-                )}
 
                 {/* Connector lines between rounds */}
                 {round !== 'final' && (
@@ -255,6 +320,69 @@ export default function TournamentBracket({
           })}
         </div>
       </div>
+
+      {/* 3rd Place Play-off Match */}
+      {thirdPlaceMatch && (
+        <div style={{
+          position: 'sticky',
+          left: 0,
+          width: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          marginTop: '24px',
+        }}>
+          <div style={{
+            width: '100%',
+            height: '1px',
+            background: 'var(--border)',
+            opacity: 0.3,
+            marginBottom: '24px',
+          }} />
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+          }}>
+            <div style={{
+              padding: '6px 16px',
+              borderRadius: '8px',
+              border: '1px solid rgba(205, 127, 50, 0.3)',
+              background: 'rgba(205, 127, 50, 0.04)',
+              textAlign: 'center',
+            }}>
+              <span style={{
+                fontSize: '11px',
+                fontWeight: 700,
+                color: '#CD7F32',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}>
+                3rd Place Play-off
+              </span>
+            </div>
+            <MatchNode
+              teamA={thirdPlaceMatch.teamA}
+              teamB={thirdPlaceMatch.teamB}
+              teamACode={thirdPlaceMatch.teamACode}
+              teamBCode={thirdPlaceMatch.teamBCode}
+              scoreA={thirdPlaceMatch.scoreA}
+              scoreB={thirdPlaceMatch.scoreB}
+              winner={thirdPlaceMatch.winner}
+              status={thirdPlaceMatch.status}
+              predictedWinner={thirdPlaceMatch.predictedWinner}
+              predictionConfidence={thirdPlaceMatch.predictionConfidence}
+              awaitingResults={thirdPlaceMatch.awaitingResults ?? false}
+              penaltiesA={thirdPlaceMatch.penaltiesA ?? null}
+              penaltiesB={thirdPlaceMatch.penaltiesB ?? null}
+              isThirdPlace={true}
+              isFinal={false}
+              isActual={isActual}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

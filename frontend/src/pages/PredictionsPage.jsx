@@ -29,6 +29,7 @@ const CONF_LABELS = { high: 'High', medium: 'Medium', low: 'Low' };
 export default function PredictionsPage({ matches }) {
   const [selectedStatus, setSelectedStatus] = useState('all');
   const [selectedConfidence, setSelectedConfidence] = useState('all');
+  const [sortType, setSortType] = useState('matchOrder');
 
   const isLive = (status) => {
     const normalized = status?.toLowerCase();
@@ -77,12 +78,33 @@ export default function PredictionsPage({ matches }) {
     });
   }, [predictions, selectedStatus, selectedConfidence]);
 
+  const sortedMatches = useMemo(() => {
+    const result = [...filteredMatches];
+    if (sortType === 'matchOrder') {
+      result.sort((a, b) => new Date(a.matchDate || a.date || 0) - new Date(b.matchDate || b.date || 0));
+    } else if (sortType === 'recentCompleted') {
+      result.sort((a, b) => {
+        const aFin = a.status === 'finished';
+        const bFin = b.status === 'finished';
+        if (aFin && !bFin) return -1;
+        if (bFin && !aFin) return 1;
+        return new Date(b.matchDate || b.date || 0) - new Date(a.matchDate || a.date || 0);
+      });
+    } else if (sortType === 'oldestFirst') {
+      result.sort((a, b) => new Date(a.matchDate || a.date || 0) - new Date(b.matchDate || b.date || 0));
+    } else if (sortType === 'alphabetical') {
+      result.sort((a, b) => (a.home || '').localeCompare(b.home || ''));
+    }
+    return result;
+  }, [filteredMatches, sortType]);
+
   useEffect(() => {
     console.log('=== FILTER DEBUG ===');
     console.log('All matches:', matches);
     console.log('Unique statuses:', [...new Set(matches.map(m => m.status))]);
     console.log('Selected filters:', { selectedStatus, selectedConfidence });
     console.log('Filtered results:', filteredMatches);
+    console.log('Sorted results:', sortedMatches);
 
     // Force a live match for testing
     if (matches && matches.length > 0) {
@@ -140,8 +162,29 @@ export default function PredictionsPage({ matches }) {
           </div>
         </div>
 
+        {/* Sort Controls */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted)', marginRight: '4px' }}>Sort by:</span>
+          {[
+            { id: 'matchOrder', label: 'Match Order' },
+            { id: 'recentCompleted', label: 'Recently Completed' },
+            { id: 'oldestFirst', label: 'Oldest First' },
+            { id: 'alphabetical', label: 'A-Z' }
+          ].map(opt => (
+            <button key={opt.id} onClick={() => setSortType(opt.id)} style={{
+              padding: '7px 14px', fontSize: '12px', fontWeight: 600, borderRadius: '8px', cursor: 'pointer', fontFamily: 'Inter, sans-serif',
+              background: sortType === opt.id ? '#003366' : 'var(--bg-card)',
+              color: sortType === opt.id ? 'white' : 'var(--text-muted)',
+              border: sortType === opt.id ? '1px solid #003366' : '1px solid var(--border)',
+              transition: 'all 0.2s',
+            }}>
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
         {/* Cards Grid */}
-        {filteredMatches.length === 0 ? (
+        {sortedMatches.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 24px', background: 'var(--bg-card)', borderRadius: '16px', border: '1px dashed var(--border)', color: 'var(--text-muted)' }}>
             <Zap size={40} style={{ margin: '0 auto 12px', opacity: 0.25 }} />
             {/* 4. UI FEEDBACK: Dynamic empty message */}
@@ -152,7 +195,7 @@ export default function PredictionsPage({ matches }) {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(310px, 1fr))', gap: '16px' }}>
-            {filteredMatches.map(m => <FullPredictionCard key={m.id} m={m} />)}
+            {sortedMatches.map(m => <FullPredictionCard key={m.id} m={m} />)}
           </div>
         )}
       </div>

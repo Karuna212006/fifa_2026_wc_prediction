@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
-import { Trophy, ArrowRight, Star, Activity, Zap, TrendingUp, Calendar, CheckCircle2, Clock } from 'lucide-react';
+import { Trophy, ArrowRight, Star, Activity, Zap, TrendingUp, Calendar, CheckCircle2, Clock, Newspaper, ExternalLink, Wifi, WifiOff } from 'lucide-react';
 import VideoBlock from '../components/VideoBlock';
+import { useWC2026News } from '../hooks/useWC2026News';
 
 // Country ISO codes
 const COUNTRY_CODES = {
@@ -48,34 +49,11 @@ function TeamFlag({ name, size = 24 }) {
   );
 }
 
-const NEWS_ARTICLES = [
-  {
-    category: 'Preview', color: '#0066CC',
-    title: 'Spain vs Germany: The Clash of Titans',
-    excerpt: 'Two of Europe\'s most decorated nations face off in what our model rates as the highest-stakes fixture of the tournament. Key stats and AI forecast inside.',
-    date: 'Jul 8, 2026', readTime: '4 min read',
-    emoji: '⚔️',
-  },
-  {
-    category: 'Analysis', color: '#00CC66',
-    title: 'Elo Ratings Shake-Up After Group Stage',
-    excerpt: 'Morocco\'s stunning performance in Group C has elevated their Elo rating by 48 points, pushing them into top-16 contention according to our model.',
-    date: 'Jul 7, 2026', readTime: '6 min read',
-    emoji: '📊',
-  },
-  {
-    category: 'Insight', color: '#FF9900',
-    title: 'The Dark Horses: Teams Beating the Odds',
-    excerpt: 'Japan, Morocco and Colombia are defying pre-tournament predictions. Our Poisson model breaks down why traditional powerhouses are under threat.',
-    date: 'Jul 6, 2026', readTime: '5 min read',
-    emoji: '🐎',
-  },
-];
+// Static articles removed — live news now fetched from NewsAPI via useWC2026News hook
 
 export default function HomePage({ matches, accuracy, error, navigate }) {
-  const liveMatches = useMemo(() => matches.filter(m => m.status !== 'finished' && m.status !== 'notstarted').slice(0, 6), [matches]);
-  const upcomingMatches = useMemo(() => matches.filter(m => m.status === 'notstarted').slice(0, 6), [matches]);
-  const displayMatches = liveMatches.length > 0 ? liveMatches : upcomingMatches;
+  const { articles: newsArticles, loading: newsLoading, isLive: newsIsLive } = useWC2026News(6);
+
 
   const stats = [
     { label: 'Winner Accuracy', value: accuracy.winner_accuracy ? `${accuracy.winner_accuracy}%` : '–', icon: <Trophy size={18} color="#FFD700" />, color: '#FFD700' },
@@ -165,34 +143,7 @@ export default function HomePage({ matches, accuracy, error, navigate }) {
         </div>
       </section>
 
-      {/* ===== LIVE / UPCOMING MATCHES ===== */}
-      <section style={{ background: 'var(--bg-secondary)', padding: '48px 24px' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-            <div>
-              <h2 className="section-title">
-                {liveMatches.length > 0 ? (
-                  <><span style={{ color: '#FF4444', fontSize: '10px' }}>●</span> Live Matches</>
-                ) : (
-                  <><Calendar size={22} color="#003366" /> Upcoming Matches</>
-                )}
-              </h2>
-              <p className="section-subtitle">{displayMatches.length > 0 ? `${displayMatches.length} match${displayMatches.length === 1 ? '' : 'es'} displayed` : 'No matches available'}</p>
-            </div>
-            <button onClick={() => navigate('fixtures')} className="btn btn-ghost" style={{ fontSize: '13px' }}>
-              View All <ArrowRight size={14} />
-            </button>
-          </div>
 
-          {displayMatches.length === 0 ? (
-            <EmptyState message={error ? 'Backend offline — connect the server to see matches.' : 'No live or upcoming matches right now.'} />
-          ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
-              {displayMatches.map(m => <HomeMatchCard key={m.id} m={m} />)}
-            </div>
-          )}
-        </div>
-      </section>
 
       {/* ===== FEATURED PREDICTIONS ===== */}
       {matches.filter(m => m.prediction && m.status === 'notstarted').length > 0 && (
@@ -216,16 +167,33 @@ export default function HomePage({ matches, accuracy, error, navigate }) {
         </section>
       )}
 
-      {/* ===== NEWS & INSIGHTS ===== */}
+      {/* ===== NEWS & INSIGHTS (Live from NewsAPI) ===== */}
       <section style={{ background: 'var(--bg-secondary)', padding: '48px 24px', borderTop: '1px solid var(--border)' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div style={{ marginBottom: '28px' }}>
-            <h2 className="section-title"><Activity size={22} color="#0066CC" /> News & Insights</h2>
-            <p className="section-subtitle">Latest analysis, previews and tournament coverage</p>
+          <div style={{ marginBottom: '28px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <h2 className="section-title">
+                <Newspaper size={22} color="#0066CC" /> News & Insights
+              </h2>
+              <p className="section-subtitle">Latest FIFA World Cup 2026 headlines</p>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '20px', background: newsIsLive ? 'rgba(0,200,100,0.1)' : 'rgba(120,120,120,0.1)', border: `1px solid ${newsIsLive ? 'rgba(0,200,100,0.3)' : 'rgba(120,120,120,0.2)'}` }}>
+              {newsIsLive
+                ? <><Wifi size={11} color="#00C864" /><span style={{ fontSize: '10px', fontWeight: 700, color: '#00C864', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Live News</span></>
+                : <><WifiOff size={11} color="#888" /><span style={{ fontSize: '10px', fontWeight: 700, color: '#888', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Curated</span></>
+              }
+            </div>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-            {NEWS_ARTICLES.map((art, i) => <NewsCard key={i} art={art} />)}
-          </div>
+
+          {newsLoading ? (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+              {[...Array(6)].map((_, i) => <NewsCardSkeleton key={i} />)}
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+              {newsArticles.map((art, i) => <NewsCard key={i} art={art} isLive={newsIsLive} />)}
+            </div>
+          )}
         </div>
       </section>
     </div>
@@ -345,27 +313,99 @@ function PredictionCard({ m }) {
   );
 }
 
-function NewsCard({ art }) {
+const CATEGORY_COLORS = ['#0066CC', '#00C864', '#FF9900', '#CC0044', '#9933FF', '#00AACC'];
+
+function formatNewsDate(isoStr) {
+  if (!isoStr) return '';
+  const d = new Date(isoStr);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function NewsCardSkeleton() {
+  return (
+    <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', overflow: 'hidden', animation: 'pulse 1.5s ease-in-out infinite' }}>
+      <div style={{ height: '160px', background: 'var(--bg-tertiary)' }} />
+      <div style={{ padding: '16px' }}>
+        <div style={{ height: '10px', width: '60px', background: 'var(--bg-tertiary)', borderRadius: '4px', marginBottom: '12px' }} />
+        <div style={{ height: '14px', background: 'var(--bg-tertiary)', borderRadius: '4px', marginBottom: '8px' }} />
+        <div style={{ height: '14px', width: '80%', background: 'var(--bg-tertiary)', borderRadius: '4px', marginBottom: '12px' }} />
+        <div style={{ height: '10px', width: '40%', background: 'var(--bg-tertiary)', borderRadius: '4px' }} />
+      </div>
+    </div>
+  );
+}
+
+function NewsCard({ art, isLive, index = 0 }) {
+  const accentColor = CATEGORY_COLORS[index % CATEGORY_COLORS.length];
+  // Live article from NewsAPI
+  if (isLive) {
+    const category = art.source?.name || 'News';
+    const imgSrc = art.urlToImage;
+    return (
+      <a
+        href={art.url || '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="news-card card-hover"
+        style={{ fontFamily: 'Inter, sans-serif', textDecoration: 'none', display: 'block', cursor: 'pointer' }}
+      >
+        <div className="img-wrap" style={{ position: 'relative', height: '160px', overflow: 'hidden', background: `linear-gradient(135deg, ${accentColor}22, ${accentColor}44)` }}>
+          {imgSrc ? (
+            <img
+              src={imgSrc}
+              alt={art.title}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <Newspaper size={48} color={accentColor} style={{ opacity: 0.4 }} />
+            </div>
+          )}
+          <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(0,0,0,0.55)', borderRadius: '4px', padding: '2px 6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <ExternalLink size={9} color="white" />
+            <span style={{ fontSize: '9px', color: 'white', fontWeight: 700 }}>READ</span>
+          </div>
+        </div>
+        <div style={{ padding: '16px' }}>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: accentColor, background: `${accentColor}18`, padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {category}
+          </span>
+          <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '10px 0 6px', lineHeight: 1.35, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {art.title}
+          </h3>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {art.description}
+          </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--text-subtle)' }}>
+            <span>{formatNewsDate(art.publishedAt)}</span>
+            <span>·</span>
+            <span style={{ color: accentColor, fontWeight: 600 }}>{art.source?.name}</span>
+          </div>
+        </div>
+      </a>
+    );
+  }
+
+  // Fallback / curated article
   return (
     <div className="news-card card-hover" style={{ fontFamily: 'Inter, sans-serif' }}>
-      {/* Emoji/Image placeholder */}
-      <div className="img-wrap" style={{ background: 'linear-gradient(135deg, #003366, #0066CC)', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '160px' }}>
-        <span style={{ fontSize: '64px' }}>{art.emoji}</span>
+      <div className="img-wrap" style={{ background: `linear-gradient(135deg, ${accentColor}22, ${accentColor}55)`, display: 'flex', alignItems: 'center', justifyContent: 'center', height: '160px' }}>
+        <span style={{ fontSize: '56px' }}>{art.emoji || '⚽'}</span>
       </div>
       <div style={{ padding: '16px' }}>
-        <span style={{ fontSize: '10px', fontWeight: 800, color: art.color, background: `${art.color}18`, padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-          {art.category}
+        <span style={{ fontSize: '10px', fontWeight: 800, color: accentColor, background: `${accentColor}18`, padding: '3px 8px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          {art.category || art.source?.name || 'News'}
         </span>
-        <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)', margin: '10px 0 6px', lineHeight: 1.35 }}>
+        <h3 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', margin: '10px 0 6px', lineHeight: 1.35 }}>
           {art.title}
         </h3>
-        <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '12px' }}>
-          {art.excerpt}
+        <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: '12px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          {art.description || art.excerpt}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: 'var(--text-subtle)' }}>
-          <span>{art.date}</span>
-          <span>·</span>
-          <span>{art.readTime}</span>
+          <span>{formatNewsDate(art.publishedAt) || art.date}</span>
+          {art.source?.name && <><span>·</span><span style={{ color: accentColor, fontWeight: 600 }}>{art.source.name}</span></>}
         </div>
       </div>
     </div>

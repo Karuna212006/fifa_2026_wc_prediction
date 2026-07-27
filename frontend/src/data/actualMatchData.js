@@ -1,23 +1,13 @@
 /**
- * actualMatchData.js — Verified real World Cup match results only.
- * 
- * The Actual Bracket pulls exclusively from this file. 
- * Any matchups/rounds not defined here will be shown as "Awaiting Official Results".
+ * actualMatchData.js — Re-exports from the authoritative actualMatchResults.js
+ * =============================================================================
+ *
+ * This file is kept for backward compatibility with BracketPage.jsx which
+ * imports `actualMatches` from here.  All real data now lives in:
+ *   frontend/src/data/actualMatchResults.js
+ *
+ * DO NOT add match data here — edit actualMatchResults.js instead.
  */
 
-export const actualMatches = [
-  // Historical example to verify rendering
-  {
-    id: "r16-0",
-    round: "r16",
-    teamA: "France",
-    teamACode: "fr",
-    scoreA: 4,
-    teamB: "Argentina",
-    teamBCode: "ar",
-    scoreB: 3,
-    status: "finished",
-    winner: "France",
-    datetime: "2022-12-18T18:00:00Z"
-  }
-];
+export { actualMatchResults as actualMatches } from './actualMatchResults.js';
+

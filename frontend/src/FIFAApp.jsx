@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import SplashScreen from './SplashScreen';
-import ChatSidebar from './ChatSidebar';
+
 import HomePage from './pages/HomePage';
 import PredictionsPage from './pages/PredictionsPage';
 import ResultsPage from './pages/ResultsPage';
@@ -11,12 +11,11 @@ import StatsPage from './pages/StatsPage';
 import AboutPage from './pages/AboutPage';
 import FixturesContent from './LiveScoresDashboard';
 import BracketPage from './pages/BracketPage';
-import { useWorldCup2026Data } from './hooks/useWorldCup2026Data';
 
 
 const API_BASE = 'http://localhost:8000';
 const POLL_MS = 10000;
-const CHAT_POLL_MS = 2500;
+
 const PROJECTION_POLL_MS = 30000;
 
 const isCometChatConfigured = !!(
@@ -32,7 +31,6 @@ export default function FIFAApp() {
   const [currentPage, setCurrentPage] = useState('home');
   const [darkMode, setDarkMode] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
 
   // Data State (existing backend data)
@@ -45,27 +43,10 @@ export default function FIFAApp() {
   const [projectionLoading, setProjectionLoading] = useState(false);
   const [projectionError, setProjectionError] = useState(null);
 
-  // NEW: Tournament bracket data from TanStack Query auto-updating hook
-  const {
-    data: bracketData,
-    isLoading: bracketLoading,
-    isRefetching: bracketRefetching,
-    hasLiveMatches,
-    simulateGoal,
-    finishMatch,
-    resetData: resetBracketData,
-  } = useWorldCup2026Data();
+  // Derive live match state from the shared matches array (same source used by all pages)
+  const hasLiveMatches = matches.some(m => m.status === 'live');
 
-  // Chat State
-  const [chatMessages, setChatMessages] = useState([]);
-  const [activeChannel, setActiveChannel] = useState('live-discussion');
-  const [nickname, setNickname] = useState(() => {
-    const saved = localStorage.getItem('wc_chat_nickname');
-    if (saved) return saved;
-    const rand = RANDOM_NICKNAMES[Math.floor(Math.random() * RANDOM_NICKNAMES.length)] + '_' + Math.floor(Math.random() * 900 + 100);
-    localStorage.setItem('wc_chat_nickname', rand);
-    return rand;
-  });
+
 
   // Dark mode
   useEffect(() => {
@@ -95,14 +76,6 @@ export default function FIFAApp() {
     }
   }, []);
 
-  const loadChat = useCallback(async () => {
-    if (isCometChatConfigured) return;
-    try {
-      const res = await fetch(`${API_BASE}/api/chat`);
-      if (!res.ok) throw new Error('Chat failed');
-      setChatMessages(await res.json());
-    } catch { /* silent */ }
-  }, []);
 
   const loadProjection = useCallback(async () => {
     setProjectionLoading(true);
@@ -125,24 +98,12 @@ export default function FIFAApp() {
   }, []);
 
   useEffect(() => {
-    loadData(); loadChat(); loadProjection();
+    loadData(); loadProjection();
     const t1 = setInterval(loadData, POLL_MS);
-    const t2 = setInterval(loadChat, CHAT_POLL_MS);
     const t3 = setInterval(loadProjection, PROJECTION_POLL_MS);
-    return () => { clearInterval(t1); clearInterval(t2); clearInterval(t3); };
-  }, [loadData, loadChat, loadProjection]);
+    return () => { clearInterval(t1); clearInterval(t3); };
+  }, [loadData, loadProjection]);
 
-  const handleSendMessage = async (message) => {
-    const msg = { username: nickname, text: message.trim(), timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }) };
-    setChatMessages(prev => [...prev, msg]);
-    try {
-      await fetch(`${API_BASE}/api/chat`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: nickname, text: message.trim() }),
-      });
-      loadChat();
-    } catch { /* silent */ }
-  };
 
   const navigate = (page) => {
     setCurrentPage(page);
@@ -168,18 +129,13 @@ export default function FIFAApp() {
       );
       case 'bracket': return (
         <BracketPage
-          bracketData={bracketData}
-          isLoading={bracketLoading}
-          isRefetching={bracketRefetching}
+          matches={matches}
           hasLiveMatches={hasLiveMatches}
-          simulateGoal={simulateGoal}
-          finishMatch={finishMatch}
-          resetData={resetBracketData}
         />
       );
       case 'results': return <ResultsPage matches={matches} accuracy={accuracy} />;
       case 'standings': return <StandingsPage matches={matches} />;
-      case 'stats': return <StatsPage />;
+      case 'stats': return <StatsPage matches={matches} />;
       case 'about': return <AboutPage />;
       default: return <HomePage {...commonProps} />;
     }
@@ -198,11 +154,6 @@ export default function FIFAApp() {
         setDarkMode={setDarkMode}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
-        isChatOpen={isChatOpen}
-        setIsChatOpen={setIsChatOpen}
-        error={error}
-        isRefetching={bracketRefetching}
-        hasLiveMatches={hasLiveMatches}
       />
 
       <main style={{ paddingTop: '64px', minHeight: 'calc(100vh - 64px)' }}>
@@ -211,17 +162,6 @@ export default function FIFAApp() {
 
       <Footer navigate={navigate} />
 
-      <ChatSidebar
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
-        messages={chatMessages}
-        nickname={nickname}
-        setNickname={setNickname}
-        activeChannel={activeChannel}
-        setActiveChannel={setActiveChannel}
-        onSendMessage={handleSendMessage}
-        isCometChatConfigured={isCometChatConfigured}
-        accuracy={accuracy}
       />
     </div>
   );
